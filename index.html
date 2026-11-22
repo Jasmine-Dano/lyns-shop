@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lyn's Shop Prices</title>
+<meta name="theme-color" content="#ffc21a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: family, quick, Taglish, like the price list taped beside the tindahan window
+   IDEA: the store's own price board: search it, fix a price, everyone sees it
+   PICTURE: the working list itself, under a red and white awning and a painted sign
+   COLOUR and TYPE: sign yellow dominant, ink support, tomato red accent; Lilita One + Nunito Sans
+   LAYOUT: sign + big search, chips, price list; side column with Kuwenta and recent changes */
+:root{color-scheme:light dark;
+ --bg:light-dark(#ffffff,#16120d);--ink:light-dark(#1d1712,#f6efe3);--mute:light-dark(#6b6157,#b9ad9c);
+ --sun:light-dark(#ffc21a,#3b2d07);--sunInk:light-dark(#1d1712,#ffd54a);--red:#d62828;--redInk:light-dark(#b81d1d,#ff7a6e);
+ --card:light-dark(#fff,#211b14);--line:light-dark(#eadfce,#3a3026);--soft:light-dark(#fff6d9,#2a2217);--ok:light-dark(#1f7a3c,#6fd08f);--warn:light-dark(#b86a00,#ffb54a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Nunito Sans",system-ui,sans-serif;overflow-x:clip}
+h1,h2,.sign{font-family:"Lilita One",Impact,sans-serif;font-weight:400}
+h2{font-size:26px;line-height:1.1;margin:0 0 10px}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.awn{height:30px;background:repeating-linear-gradient(90deg,#d62828 0 44px,#fff 44px 88px);-webkit-mask:radial-gradient(22px 12px at 22px 18px,#000 98%,#0000) 0 0/44px 30px,linear-gradient(#000 0 0) 0 0/100% 18px no-repeat;mask:radial-gradient(22px 12px at 22px 18px,#000 98%,#0000) 0 0/44px 30px,linear-gradient(#000 0 0) 0 0/100% 18px no-repeat}
+.top{background:var(--sun);color:var(--sunInk);padding:18px max(5vw,16px) 26px}
+.wrap{max-width:1240px;margin:auto}
+.head{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:16px}
+.sign{background:#1d1712;color:#ffc21a;font-size:clamp(30px,5vw,44px);line-height:1;padding:10px 22px;border-radius:12px;box-shadow:inset 0 0 0 3px #1d1712,inset 0 0 0 5px #ffc21a55}
+.head p{margin:0;font-weight:800;font-size:18px;color:var(--ink)}
+.conn{margin-left:auto;font-size:14px;font-weight:800;padding:6px 12px;border-radius:99px;background:var(--card);color:var(--ink);white-space:nowrap}
+.conn i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mute);margin-right:6px}.conn.live i{background:#2fb65a}.conn.off i{background:var(--red)}
+.sbox{display:flex;background:var(--card);border:3px solid var(--ink);border-radius:16px;box-shadow:6px 6px 0 var(--ink);overflow:hidden}
+.sbox input{flex:1;border:0;background:transparent;padding:0 18px;height:62px;font-size:20px;outline:none}
+.sbox kbd{align-self:center;margin-right:8px;font:700 13px system-ui;border:1px solid var(--line);border-radius:6px;padding:2px 7px;color:var(--mute)}
+.sbox .clr{border:0;background:none;width:52px;font-size:24px;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+.chip{min-height:40px;padding:0 14px;border-radius:99px;border:2px solid var(--ink);background:transparent;font-weight:700;font-size:15px;color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg)}.chip.warnc{border-color:var(--warn);color:var(--warn)}.chip.warnc.on{background:var(--warn);color:#fff}
+.btn{min-height:44px;padding:0 18px;border-radius:12px;border:0;font-weight:800;background:var(--red);color:#fff;white-space:nowrap}
+.btn.ghost{background:transparent;color:inherit;border:2px solid currentColor}.btn.dark{background:var(--ink);color:var(--bg)}.mini{min-height:38px;padding:0 12px;font-size:14px}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;padding:24px max(5vw,16px) 48px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.bar select{height:44px;border-radius:10px;border:2px solid var(--line);background:var(--card);padding:0 10px;font-size:16px}
+.count{color:var(--mute);font-weight:700;margin-right:auto}
+.note{font-size:14px;color:var(--mute);margin:6px 0}
+.banner{background:var(--soft);border:2px dashed var(--warn);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-weight:600}
+.row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:12px;border:2px solid var(--line);border-radius:16px;background:var(--card);margin-bottom:10px}
+.row:hover{border-color:var(--ink)}
+.row svg{width:60px;height:60px;background:var(--soft);border-radius:12px;padding:4px}
+.row h3{margin:0;font-size:17px;line-height:1.25;font-weight:800}
+.meta{font-size:13px;color:var(--mute)}
+.pr{text-align:right}.big{font-size:26px;font-weight:800;white-space:nowrap;line-height:1}.pr small{display:block;font-size:13px;color:var(--mute);white-space:nowrap}
+.acts{grid-column:2/4;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.stk{display:flex;align-items:center;border:2px solid var(--line);border-radius:12px}
+.stk button{width:40px;height:36px;border:0;background:none;font-size:20px;font-weight:800}.stk b{min-width:36px;text-align:center;font-size:15px}
+.tag{font-size:13px;font-weight:800;padding:3px 9px;border-radius:99px;background:var(--soft)}.tag.low{color:var(--warn)}.tag.out{color:var(--redInk)}.tag.up{color:var(--redInk)}.tag.down{color:var(--ok)}
+.acts .sp{margin-left:auto;display:flex;gap:8px}
+mark{background:#ffc21a99;color:inherit;border-radius:3px;padding:0 1px}
+.empty{text-align:center;padding:36px 16px;background:var(--soft);border-radius:16px}
+.side>section{background:var(--soft);border-radius:18px;padding:16px;margin-bottom:18px}
+.tl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);font-size:15px}
+.tl button{width:32px;height:32px;border-radius:8px;border:2px solid var(--line);background:var(--card);font-weight:800}
+.tot{display:flex;justify-content:space-between;font-size:22px;font-weight:800;margin:10px 0}
+.field{display:grid;gap:4px;font-size:14px;font-weight:700}
+.field input,.field select{height:46px;border:2px solid var(--line);border-radius:10px;padding:0 12px;background:var(--card);font-size:16px;font-weight:400;width:100%}
+.sukli{font-size:20px;font-weight:800;color:var(--ok);margin-top:8px}.sukli.neg{color:var(--redInk)}
+.log{list-style:none;margin:0;padding:0}.log li{padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.log b{font-size:15px}
+.scrim{position:fixed;inset:0;background:#0008;z-index:40;display:none}
+.modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:var(--bg);border:3px solid var(--ink);border-radius:18px;z-index:41;display:none;padding:0 0 16px}
+.show .scrim,.show .modal{display:block}
+.mh{display:flex;justify-content:space-between;align-items:center;background:var(--sun);color:var(--sunInk);padding:12px 16px;margin-bottom:12px}
+.mh h2{margin:0}.x{width:44px;height:44px;border-radius:12px;border:2px solid currentColor;background:none;font-size:22px}
+.mb{padding:0 16px;display:grid;gap:12px}.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.mf{display:flex;gap:10px;flex-wrap:wrap;padding:6px 16px 0}.mf .grow{margin-left:auto}
+.err{color:var(--redInk);font-weight:700;font-size:14px;min-height:1em}
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,140px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:700;z-index:60;transition:transform .25s}
+.toast.on{transform:translate(-50%,0)}
+.fab{position:fixed;right:16px;bottom:16px;z-index:30;display:none}
+@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}.fab{display:block}}
+@media(max-width:600px){.sbox kbd{display:none}.sbox input{font-size:18px;padding:0 12px}.row{grid-template-columns:52px minmax(0,1fr) auto}.row svg{width:50px;height:50px}.acts{grid-column:1/4}.big{font-size:22px}.conn{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="awn" aria-hidden="true"></div>
+<header class="top">
+ <div class="wrap">
+  <div class="head">
+   <span class="sign">Lyn's Shop</span>
+   <p>Presyo checker ng pamilya</p>
+   <span class="conn" id="conn"><i></i>Connecting…</span>
+  </div>
+  <form class="sbox" id="sform" role="search">
+   <input id="q" type="search" autocomplete="off" placeholder="Magkano ang… kape, itlog, sabon" aria-label="Search item prices">
+   <kbd>/</kbd>
+   <button class="clr" type="button" id="clr" aria-label="Clear search">×</button>
+  </form>
+  <div class="chips" id="cats"></div>
+ </div>
+</header>
+
+<div class="main wrap">
+ <main>
+  <div id="banner"></div>
+  <div class="bar">
+   <span class="count" id="count">Loading prices…</span>
+   <label for="sort" class="note">Sort</label>
+   <select id="sort"><option value="rel">Best match</option><option value="az">Name A–Z</option><option value="lo">Cheapest first</option><option value="hi">Priciest first</option><option value="new">Recently updated</option><option value="stock">Lowest stock</option></select>
+   <button class="btn dark" id="addBtn" type="button">+ Add item</button>
+  </div>
+  <div id="list"></div>
+ </main>
+ <aside class="side">
+  <section id="kuwenta">
+   <h2>Kuwenta</h2>
+   <p class="note">Tap ₱ on any item to add it here, then type the cash to get the sukli.</p>
+   <div id="tally"></div>
+   <div class="tot"><span>Total</span><span id="ttot">₱0</span></div>
+   <label class="field">Bayad (cash)<input id="cash" type="number" inputmode="decimal" min="0" placeholder="e.g. 100"></label>
+   <div class="sukli" id="sukli"></div>
+   <p><button class="btn ghost mini" id="tclear" type="button">Clear kuwenta</button></p>
+  </section>
+  <section>
+   <h2>Recent price changes</h2>
+   <ul class="log" id="log"><li class="note">No changes yet.</li></ul>
+  </section>
+ </aside>
+</div>
+<button class="btn fab" id="fab" type="button">Kuwenta ₱0</button>
+
+<div class="scrim" id="scrim"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+ <div class="mh"><h2 id="mt">Edit item</h2><button class="x" id="mx" type="button" aria-label="Close">×</button></div>
+ <form id="ef">
+  <div class="mb">
+   <label class="field">Item name<input id="en" required maxlength="80"></label>
+   <div class="two">
+    <label class="field">Price ₱<input id="ep" type="number" step="0.25" min="0" inputmode="decimal" required></label>
+    <label class="field">Per (unit)<input id="eu" placeholder="pack, sachet, pc" maxlength="20"></label>
+   </div>
+   <div class="two">
+    <label class="field">Stock<input id="es" type="number" min="0" inputmode="numeric"></label>
+    <label class="field">Category<select id="ec"></select></label>
+   </div>
+   <label class="field">Other words to find it<input id="et" placeholder="e.g. kape coffee 3in1" maxlength="160"></label>
+   <label class="field">Your name (so the family knows who changed it)<input id="ewho" placeholder="e.g. Ate Lyn" maxlength="30"></label>
+   <div class="err" id="eerr"></div>
+  </div>
+  <div class="mf"><button class="btn" type="submit">Save</button><button class="btn ghost" type="button" id="ecancel">Cancel</button><button class="btn ghost grow" type="button" id="edel" style="color:var(--redInk)">Delete</button></div>
+ </form>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+/* ====== PASTE YOUR FIREBASE CONFIG HERE (Step 2 of the guide) ====== */
+const firebaseConfig = {
+  apiKey: "AIzaSyA16eTkzr6ub-ugWbjF0XzwrWlkvIjMlBM",
+  authDomain: "lyns-shop.firebaseapp.com",
+  projectId: "lyns-shop",
+  storageBucket: "lyns-shop.firebasestorage.app",
+  messagingSenderId: "27442867508",
+  appId: "1:27442867508:web:5157b63d084e9905114961"
+};
+/* ==================================================================== */
+
+const $=s=>document.querySelector(s);
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const peso=n=>'₱'+(+n||0).toLocaleString('en-PH',{minimumFractionDigits:(+n)%1?2:0,maximumFractionDigits:2});
+const CATS=['Drinks','Coffee & Milk','Noodles & Canned','Snacks','Rice & Cooking','Household','Personal care','Others'];
+const SHAPES=['can','bottle','pack','sachet','box','bag','egg','candle'];
+const SYN={coffee:['kape'],kape:['coffee'],soap:['sabon'],sabon:['soap'],noodle:['canton'],noodles:['canton'],pansit:['pancit'],egg:['itlog'],eggs:['itlog'],itlog:['egg'],rice:['bigas'],bigas:['rice'],oil:['mantika'],soy:['toyo'],vinegar:['suka'],sugar:['asukal'],salt:['asin'],ice:['yelo'],yelo:['ice'],milk:['gatas'],gatas:['milk'],chips:['chichirya'],snacks:['chichirya','biscuit'],soda:['softdrinks'],softdrink:['softdrinks'],coke:['cola'],candle:['kandila'],matches:['posporo'],laundry:['panlaba'],detergent:['panlaba'],dishwashing:['panghugas'],fish:['isda'],canned:['lata'],sardinas:['sardines'],hair:['buhok']};
+const S=(id,n,c,p,u,s,t,sh,col)=>({id,n,c:CATS[c],p,u,s,t,sh,col});
+const SAMPLE=[S('canton','Lucky Me! Pancit Canton Original',2,18,'pack',40,'noodles pansit pancit canton instant','pack','#e8a800'),S('lmbeef','Lucky Me! Beef Noodle Soup',2,14,'pack',25,'noodles mami soup instant','pack','#c0392b'),S('payless','Payless Xtra Big Pancit Canton',2,17,'pack',18,'noodles pansit pancit canton instant','pack','#2e7d32'),S('ligo','Ligo Sardines in Tomato Sauce 155g',2,28,'can',30,'sardinas sardines isda fish de lata canned','can','#c62828'),S('555tuna','555 Tuna Afritada 155g',2,38,'can',12,'tuna isda fish de lata canned','can','#f2a900'),S('argentina','Argentina Corned Beef 150g',2,45,'can',9,'karne beef corned de lata canned','can','#1565c0'),S('nescafe','Nescafé 3-in-1 Original',1,10,'sachet',80,'kape coffee 3in1','sachet','#8d2b1e'),S('kopiko','Kopiko Brown Coffee',1,10,'sachet',60,'kape coffee 3in1','sachet','#5d3a1a'),S('milo','Milo 22g',1,10,'sachet',50,'chocolate tsokolate gatas milk','sachet','#1b7a3a'),S('bear','Bear Brand Powdered Milk 33g',1,15,'sachet',35,'gatas milk powdered','sachet','#e53935'),S('coke15','Coca-Cola 1.5L',0,80,'bottle',10,'softdrinks soda coke cola','bottle','#c8102e'),S('cokemismo','Coca-Cola Mismo 295ml',0,25,'bottle',24,'softdrinks soda coke cola mismo','bottle','#c8102e'),S('royal','Royal Tru-Orange Mismo',0,25,'bottle',20,'softdrinks soda orange','bottle','#f57c00'),S('c2','C2 Green Tea Apple 230ml',0,20,'bottle',0,'tea iced juice','bottle','#43a047'),S('yakult','Yakult (5 bottles)',0,60,'pack',6,'probiotic drink','bottle','#e91e63'),S('yelo','Yelo / Ice, small bag',0,5,'bag',30,'ice yelo tube','bag','#7fb8ee'),S('skyflakes','SkyFlakes Crackers',3,10,'pack',45,'biscuit biskwit crackers merienda','pack','#1976d2'),S('piattos','Piattos Cheese 40g',3,20,'pack',22,'chips chichirya sitsirya junk food','pack','#e0a800'),S('nova','Nova Country Cheddar 40g',3,20,'pack',4,'chips chichirya sitsirya junk food','pack','#6a1b9a'),S('chippy','Chippy Barbecue 27g',3,15,'pack',18,'chips chichirya sitsirya junk food','pack','#d84315'),S('egg','Itlog / Fresh egg, medium',4,9,'pc',60,'egg eggs itlog','egg','#f1dcc0'),S('rice','Bigas / Well-milled rice',4,52,'kilo',40,'rice bigas','bag','#d9cfb8'),S('oil','Mantika / Cooking oil',4,15,'tali',30,'oil mantika cooking','sachet','#e9b424'),S('toyo','Datu Puti Soy Sauce',4,6,'sachet',50,'toyo soy sauce','sachet','#3e2723'),S('suka','Datu Puti Vinegar',4,6,'sachet',50,'suka vinegar','sachet','#8fa3ad'),S('sugar','Asukal / Brown sugar 1/4 kilo',4,25,'pack',20,'sugar asukal','bag','#a1887f'),S('salt','Asin / Iodized salt 250g',4,12,'pack',15,'salt asin','bag','#9cc3e6'),S('surf','Surf Powder Detergent',5,10,'sachet',70,'sabon panlaba laundry detergent','sachet','#7b1fa2'),S('joy','Joy Dishwashing Liquid',5,8,'sachet',40,'panghugas dishwashing sabon plato','sachet','#e6c200'),S('tide','Tide Bar 130g',5,20,'bar',3,'sabon panlaba laundry bar','box','#ef6c00'),S('kandila','Kandila / Candle',5,10,'pc',25,'candle kandila brownout','candle','#f5f0e0'),S('posporo','Posporo / Matches',5,3,'box',40,'matches posporo','box','#c62828'),S('safeguard','Safeguard Pure White',6,40,'bar',12,'sabon soap ligo bath','box','#90a4ae'),S('palmolive','Palmolive Shampoo',6,8,'sachet',60,'shampoo buhok hair','sachet','#2e7d32'),S('colgate','Colgate Toothpaste 25ml',6,35,'tube',10,'toothpaste ngipin','box','#d32f2f'),S('creamsilk','Cream Silk Conditioner',6,8,'sachet',40,'conditioner buhok hair','sachet','#ec407a')];
+
+let F=null,fdb=null,live=false,local=false;
+let P=[],LOG=[];
+let st={q:'',cat:'All',sort:'rel'},editing=null;
+let tally=ls.get('lyns-tally',{});
+
+const clean=(id,d)=>({id,n:String(d.n||'Unnamed').slice(0,80),c:CATS.includes(d.c)?d.c:'Others',p:Math.max(0,+d.p||0),u:String(d.u||'pc').slice(0,20),s:Math.max(0,Math.floor(+d.s||0)),t:String(d.t||'').slice(0,160),
+ sh:SHAPES.includes(d.sh)?d.sh:'box',col:/^#[0-9a-f]{3,6}$/i.test(d.col||'')?d.col:'#888',at:+d.at||0,by:String(d.by||'').slice(0,30),prev:d.prev==null?null:+d.prev});
+
+function art(p){const c=p.col,t=esc((p.n.match(/[A-Za-z0-9]+/g)||['?']).slice(0,2).map(w=>w[0]).join('').toUpperCase());
+ const L=`<text x="40" y="47" text-anchor="middle" font-family="Lilita One,Impact" font-size="15" fill="#fff" stroke="#0005" stroke-width=".6">${t}</text>`;
+ const D={can:`<rect x="20" y="22" width="40" height="48" rx="5" fill="${c}"/><rect x="20" y="22" width="9" height="48" fill="#fff" opacity=".25"/><ellipse cx="40" cy="22" rx="20" ry="5" fill="#cfd8dc"/>${L}`,
+  bottle:`<path d="M34 6h12v12c8 6 10 12 10 20v32a4 4 0 0 1-4 4H28a4 4 0 0 1-4-4V38c0-8 2-14 10-20z" fill="${c}"/><rect x="33" y="3" width="14" height="6" rx="2" fill="#333"/><rect x="24" y="36" width="32" height="18" fill="#fff" opacity=".9"/><text x="40" y="50" text-anchor="middle" font-family="Lilita One,Impact" font-size="12" fill="${c}">${t}</text>`,
+  pack:`<path d="M16 16l4-4 4 4 4-4 4 4 4-4 4 4 4-4 4 4 4-4 4 4 4-4v52l-4 4-4-4-4 4-4-4-4 4-4-4-4 4-4-4-4 4-4-4-4 4z" fill="${c}"/><rect x="16" y="16" width="8" height="52" fill="#fff" opacity=".2"/>${L}`,
+  sachet:`<rect x="22" y="12" width="36" height="58" rx="3" fill="${c}"/><path d="M22 14h36M22 68h36" stroke="#fff" stroke-dasharray="2 2" stroke-width="3" opacity=".5"/><rect x="22" y="12" width="7" height="58" fill="#fff" opacity=".2"/>${L}`,
+  box:`<path d="M18 30l8-8h36l-8 8z" fill="#fff" opacity=".55"/><path d="M54 30l8-8v38l-8 8z" fill="#0003"/><rect x="18" y="30" width="36" height="38" fill="${c}"/><g transform="translate(-4 6)">${L}</g>`,
+  bag:`<path d="M24 14h32l-2 6c6 8 8 20 8 34 0 10-6 18-22 18S18 64 18 54c0-14 2-26 8-34z" fill="${c}"/><path d="M26 30c-3 8-4 18-3 30" stroke="#fff" stroke-width="4" opacity=".35" fill="none"/>${L}`,
+  egg:`<path d="M40 10c12 0 20 22 20 36s-9 22-20 22-20-8-20-22 8-36 20-36z" fill="${c}"/><ellipse cx="33" cy="32" rx="5" ry="9" fill="#fff" opacity=".6"/>`,
+  candle:`<rect x="33" y="24" width="14" height="48" rx="3" fill="${c}" stroke="#d8cfb4"/><path d="M40 8c5 6 5 10 0 14-5-4-5-8 0-14z" fill="#ffb300"/>`};
+ return `<svg viewBox="0 0 80 80" aria-hidden="true">${D[p.sh]||D.box}</svg>`}
+
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').trim();
+function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const m=[];for(let i=0;i<=b.length;i++)m[i]=[i];for(let j=0;j<=a.length;j++)m[0][j]=j;
+ for(let i=1;i<=b.length;i++)for(let j=1;j<=a.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(b[i-1]===a[j-1]?0:1));return m[b.length][a.length]}
+const words=p=>norm(p.n+' '+p.c+' '+p.t+' '+p.u).split(/\s+/);
+const toks=q=>norm(q).split(/\s+/).filter(Boolean).map(t=>[t,...(SYN[t]||[])]);
+function score(alts,W){let b=0;for(const a of alts)for(const w of W){let s=0;if(w===a)s=4;else if(w.startsWith(a))s=3;else if(a.length>2&&w.includes(a))s=2;else if(a.length>3&&lev(a,w)<=(a.length>6?2:1))s=1;if(s>b)b=s}return b}
+function search(q){const T=toks(q);if(!T.length)return P.map(p=>({p,s:0}));const out=[];
+ for(const p of P){const W=words(p);let tot=0,ok=true;for(const a of T){const s=score(a,W);if(!s){ok=false;break}tot+=s}if(ok)out.push({p,s:tot})}return out}
+function didYouMean(q){const V=new Set();P.forEach(p=>words(p).forEach(w=>w.length>2&&V.add(w)));
+ return norm(q).split(/\s+/).map(t=>{let b=t,bd=99;V.forEach(w=>{const d=lev(t,w);if(d<bd){bd=d;b=w}});return bd<=3?b:t}).join(' ')}
+function hl(name,q){const h=esc(name),T=toks(q).flat().filter(t=>t.length>1);if(!T.length)return h;return h.replace(new RegExp('('+T.join('|')+')','gi'),'<mark>$1</mark>')}
+
+function ago(t){if(!t)return '';const m=Math.round((Date.now()-t)/60000);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' hr ago';const d=Math.round(h/24);return d<30?d+' day'+(d>1?'s':'')+' ago':new Date(t).toLocaleDateString('en-PH',{month:'short',day:'numeric'})}
+let tt;function toast(m){$('#toast').textContent=m;$('#toast').classList.add('on');clearTimeout(tt);tt=setTimeout(()=>$('#toast').classList.remove('on'),2000)}
+function setConn(cls,txt){const c=$('#conn');c.className='conn '+cls;c.innerHTML='<i></i>'+esc(txt)}
+const myName=()=>ls.get('lyns-name','');
+
+function stockTag(p){return p.s<=0?'<span class="tag out">Ubos na</span>':p.s<=5?'<span class="tag low">Paubos na</span>':''}
+function chg(p){if(p.prev==null||p.prev===p.p||Date.now()-p.at>7*864e5)return '';return p.p>p.prev?`<span class="tag up">▲ from ${peso(p.prev)}</span>`:`<span class="tag down">▼ from ${peso(p.prev)}</span>`}
+function row(p){return `<article class="row">${art(p)}<div><h3>${hl(p.n,st.q)}</h3><div class="meta">${esc(p.c)}${p.at?` · updated ${ago(p.at)}${p.by?' by '+esc(p.by):''}`:''}</div></div>
+ <div class="pr"><div class="big">${peso(p.p)}</div><small>per ${esc(p.u)}</small></div>
+ <div class="acts"><div class="stk" title="Stock"><button data-sdec="${esc(p.id)}" aria-label="One less in stock">−</button><b>${p.s}</b><button data-sinc="${esc(p.id)}" aria-label="One more in stock">+</button></div>${stockTag(p)}${chg(p)}
+ <span class="sp"><button class="btn ghost mini" data-tally="${esc(p.id)}">+ ₱ Kuwenta</button><button class="btn dark mini" data-edit="${esc(p.id)}">Edit price</button></span></div></article>`}
+function render(){
+ const low=P.filter(p=>p.s<=5).length;
+ $('#cats').innerHTML=['All',...CATS.filter(c=>P.some(p=>p.c===c))].map(c=>`<button class="chip${c===st.cat?' on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('')+`<button class="chip warnc${st.cat==='LOW'?' on':''}" data-cat="LOW">Paubos na (${low})</button>`;
+ let r=search(st.q).filter(x=>st.cat==='All'||(st.cat==='LOW'?x.p.s<=5:x.p.c===st.cat));
+ const so={rel:(a,b)=>b.s-a.s||a.p.n.localeCompare(b.p.n),az:(a,b)=>a.p.n.localeCompare(b.p.n),lo:(a,b)=>a.p.p-b.p.p,hi:(a,b)=>b.p.p-a.p.p,new:(a,b)=>b.p.at-a.p.at,stock:(a,b)=>a.p.s-b.p.s}[st.sort];r.sort(so);
+ $('#count').textContent=`${r.length} of ${P.length} item${P.length===1?'':'s'}`;
+ if(!P.length&&(live||local))$('#list').innerHTML=`<div class="empty"><h2>Wala pang items.</h2><p>Add your first item, or start with 36 common sari-sari items and fix the prices.</p><p><button class="btn" data-add>+ Add item</button> <button class="btn ghost" data-seed>Load sample items</button></p></div>`;
+ else if(!P.length)$('#list').innerHTML='<div class="empty"><p>Loading prices…</p></div>';
+ else if(!r.length){const dm=st.q?didYouMean(st.q):'';$('#list').innerHTML=`<div class="empty"><h2>Walang “${esc(st.q)}”.</h2>${dm&&dm!==norm(st.q)?`<p><button class="btn" data-try="${esc(dm)}">Did you mean “${esc(dm)}”?</button></p>`:''}<p><button class="btn ghost" data-add="${esc(st.q)}">+ Add “${esc(st.q)}” as new item</button></p></div>`}
+ else $('#list').innerHTML=r.map(x=>row(x.p)).join('');
+ renderTally()}
+function renderLog(){$('#log').innerHTML=LOG.length?LOG.map(l=>`<li><b>${esc(l.name)}</b><br>${l.from==null?'Added at '+peso(l.to):l.to==null?'Removed':peso(l.from)+' → '+peso(l.to)}<div class="meta">${ago(l.at)}${l.by?' · '+esc(l.by):''}</div></li>`).join(''):'<li class="note">No changes yet.</li>'}
+function renderTally(){const L=Object.entries(tally).map(([id,q])=>({p:P.find(p=>p.id===id),q})).filter(x=>x.p);
+ const tot=L.reduce((a,x)=>a+x.p.p*x.q,0);
+ $('#tally').innerHTML=L.length?L.map(({p,q})=>`<div class="tl"><span>${q} × ${esc(p.n)}<br><span class="meta">${peso(p.p*q)}</span></span><button data-tdec="${esc(p.id)}" aria-label="One less">−</button><button data-tally="${esc(p.id)}" aria-label="One more">+</button></div>`).join(''):'<p class="note">Empty.</p>';
+ $('#ttot').textContent=peso(tot);$('#fab').textContent='Kuwenta '+peso(tot);
+ const cash=+$('#cash').value,s=$('#sukli');if(cash&&tot){const d=cash-tot;s.className='sukli'+(d<0?' neg':'');s.textContent=d<0?`Kulang pa ${peso(-d)}`:`Sukli: ${peso(d)}`}else s.textContent=''}
+
+/* ---------- saving ---------- */
+const body=p=>({n:p.n,c:p.c,p:p.p,u:p.u,s:p.s,t:p.t,sh:p.sh,col:p.col,at:p.at,by:p.by,prev:p.prev});
+function saveLocal(){ls.set('lyns-cache',P);render()}
+async function put(p){if(local){P=P.filter(x=>x.id!==p.id).concat(p);saveLocal();return true}
+ try{await F.setDoc(F.doc(fdb,'items',p.id),body(p));return true}catch(e){return fail(e)}}
+async function del(id){if(local){P=P.filter(x=>x.id!==id);saveLocal();return true}try{await F.deleteDoc(F.doc(fdb,'items',id));return true}catch(e){return fail(e)}}
+async function logIt(name,from,to){const l={name,from,to,at:Date.now(),by:myName()};if(local){LOG=[l,...LOG].slice(0,30);ls.set('lyns-log',LOG);renderLog();return}try{await F.addDoc(F.collection(fdb,'log'),l)}catch(e){}}
+function fail(e){console.error(e);toast(e&&e.code==='permission-denied'?'Not allowed. Check the Firestore rules (Step 1).':'Not saved. Check your internet and try again.');return false}
+async function seed(){if(local){P=SAMPLE.map(x=>clean(x.id,{...x,at:0}));saveLocal();return}
+ try{const b=F.writeBatch(fdb);SAMPLE.forEach(x=>{const{id,...d}=x;b.set(F.doc(fdb,'items',id),{...d,at:0,by:'',prev:null})});await b.commit();toast('Sample items loaded')}catch(e){fail(e)}}
+const pend={};function stock(id,d){const p=P.find(x=>x.id===id);if(!p)return;p.s=Math.max(0,p.s+d);render();clearTimeout(pend[id]);
+ pend[id]=setTimeout(async()=>{const cur=P.find(x=>x.id===id);if(cur)await put({...cur,at:Date.now(),by:myName()})},700)}
+
+/* ---------- edit form ---------- */
+function openEdit(p,name){editing=p||null;$('#mt').textContent=p?'Edit item':'New item';$('#ec').innerHTML=CATS.map(c=>`<option>${c}</option>`).join('');
+ $('#en').value=p?p.n:(name||'');$('#ep').value=p?p.p:'';$('#eu').value=p?p.u:'';$('#es').value=p?p.s:'';$('#ec').value=p?p.c:(st.cat!=='All'&&st.cat!=='LOW'?st.cat:'Others');$('#et').value=p?p.t:'';$('#ewho').value=myName();
+ $('#edel').style.display=p?'':'none';$('#edel').textContent='Delete';$('#eerr').textContent='';document.body.classList.add('show');setTimeout(()=>(p?$('#ep'):$('#en')).focus(),30)}
+const closeEdit=()=>{document.body.classList.remove('show');editing=null};
+$('#ef').addEventListener('submit',async e=>{e.preventDefault();const n=$('#en').value.trim(),pr=+$('#ep').value;
+ if(!n){$('#eerr').textContent='Lagyan ng pangalan.';return}if($('#ep').value===''||!(pr>=0)){$('#eerr').textContent='Lagyan ng presyo.';return}
+ ls.set('lyns-name',$('#ewho').value.trim().slice(0,30));
+ const old=editing,id=old?old.id:(norm(n).replace(/\s+/g,'-').slice(0,40)||'item')+'-'+Date.now().toString(36);
+ const p={id,n,p:pr,u:$('#eu').value.trim()||'pc',s:Math.max(0,Math.floor(+$('#es').value||0)),c:$('#ec').value,t:$('#et').value.trim(),
+  sh:old?old.sh:'box',col:old?old.col:['#d62828','#1976d2','#2e7d32','#7b1fa2','#ef6c00','#00838f'][P.length%6],at:Date.now(),by:myName(),prev:old?(old.p!==pr?old.p:old.prev):null};
+ const ok=await put(p);if(!ok)return;closeEdit();
+ if(!old){logIt(n,null,pr);toast(n+' added')}else if(old.p!==pr){logIt(n,old.p,pr);toast(`${n}: ${peso(old.p)} → ${peso(pr)}`)}else toast('Saved')});
+$('#edel').addEventListener('click',async()=>{const b=$('#edel');if(b.textContent==='Delete'){b.textContent='Tap again to delete';return}
+ const p=editing;if(p&&await del(p.id)){logIt(p.n,p.p,null);delete tally[p.id];ls.set('lyns-tally',tally);closeEdit();toast('Deleted')}});
+$('#mx').addEventListener('click',closeEdit);$('#ecancel').addEventListener('click',closeEdit);$('#scrim').addEventListener('click',closeEdit);
+
+/* ---------- events ---------- */
+let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value;render()},120)});
+$('#sform').addEventListener('submit',e=>{e.preventDefault();st.q=$('#q').value;render();$('#q').blur()});
+$('#clr').addEventListener('click',()=>{$('#q').value='';st.q='';render();$('#q').focus()});
+$('#sort').addEventListener('change',e=>{st.sort=e.target.value;render()});
+$('#addBtn').addEventListener('click',()=>openEdit(null));
+$('#cash').addEventListener('input',renderTally);
+$('#tclear').addEventListener('click',()=>{tally={};ls.set('lyns-tally',tally);$('#cash').value='';renderTally()});
+$('#fab').addEventListener('click',()=>$('#kuwenta').scrollIntoView({behavior:'smooth'}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEdit();if(e.key==='/'&&!/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();$('#q').focus()}});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.cat){st.cat=d.cat;render()}else if(d.edit)openEdit(P.find(p=>p.id===d.edit));else if(d.add!==undefined)openEdit(null,d.add);else if(d.seed!==undefined)seed();
+ else if(d.try){$('#q').value=d.try;st.q=d.try;render()}else if(d.sinc)stock(d.sinc,1);else if(d.sdec)stock(d.sdec,-1);
+ else if(d.tally){tally[d.tally]=(tally[d.tally]||0)+1;ls.set('lyns-tally',tally);renderTally();if(b.closest('.row'))toast('Added to kuwenta')}
+ else if(d.tdec){const q=(tally[d.tdec]||0)-1;if(q>0)tally[d.tdec]=q;else delete tally[d.tdec];ls.set('lyns-tally',tally);renderTally()}});
+
+/* ---------- connect to Firebase ---------- */
+function goLocal(msg){local=true;live=false;P=ls.get('lyns-cache',[]).map(x=>clean(x.id,x));LOG=ls.get('lyns-log',[]);setConn('off','This device only');
+ $('#banner').innerHTML=`<div class="banner">${msg} Changes made now stay on this phone only.</div>`;render();renderLog()}
+render();
+(async()=>{
+ if(!firebaseConfig.apiKey||!firebaseConfig.projectId){goLocal('Setup not finished: paste your Firebase config at the top of index.html.');return}
+ try{
+  const V='10.12.2';
+  const app=await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+  F=await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+  fdb=F.getFirestore(app.initializeApp(firebaseConfig));
+ }catch(e){console.error(e);goLocal('Can’t reach the family price list. Check your internet.');return}
+ P=ls.get('lyns-cache',[]).map(x=>clean(x.id,x));render();
+ const timer=setTimeout(()=>{if(!live){setConn('off','Not connected');$('#banner').innerHTML='<div class="banner">Can’t reach the price list yet. Prices shown may be old.</div>'}},10000);
+ F.onSnapshot(F.collection(fdb,'items'),{includeMetadataChanges:true},snap=>{P=snap.docs.map(d=>clean(d.id,d.data()));ls.set('lyns-cache',P);
+  if(!snap.metadata.fromCache){live=true;clearTimeout(timer);$('#banner').innerHTML='';setConn('live','Live, shared with family')}
+  render()},err=>{clearTimeout(timer);console.error(err);setConn('off','Not connected');$('#banner').innerHTML=`<div class="banner">${err.code==='permission-denied'?'The database is locked. Paste the rules from Step 1 in Firestore.':'Lost connection to the price list. Reload the page.'}</div>`});
+ F.onSnapshot(F.query(F.collection(fdb,'log'),F.orderBy('at','desc'),F.limit(25)),s=>{LOG=s.docs.map(d=>{const x=d.data()||{};return{name:String(x.name||'').slice(0,80),from:x.from==null?null:+x.from,to:x.to==null?null:+x.to,at:+x.at||0,by:String(x.by||'').slice(0,30)}});renderLog()},()=>{});
+})();
+setInterval(()=>{if(P.length)render()},60000);
+</script>
+</body>
+</html>
